@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 
+// Lab 3: RegisterForm component
+// This form allows users to enter a username and password for registration or login.
 const RegisterForm = () => {
   // State variables to store user input for email and password
   const [email, setEmail] = useState('');

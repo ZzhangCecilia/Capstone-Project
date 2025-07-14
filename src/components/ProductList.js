@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 
-// Lab 2: Product listing with API fetch
+// Lab 2: ProductList component
+// This functional component takes a list of products and renders them as a list.
 const ProductList = () => {
   const [items, setItems] = useState([]);
 
