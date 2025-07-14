@@ -1,3 +1,5 @@
+# Lab 1: Initialize Flask backend
+# This sets up a minimal Flask app that can serve API responses to the frontend.
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from werkzeug.security import generate_password_hash
