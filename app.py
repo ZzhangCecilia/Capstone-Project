@@ -2,53 +2,43 @@
 # This sets up a minimal Flask app that can serve API responses to the frontend.
 from flask import Flask, request, jsonify
 from flask_cors import CORS
+from app.routes.auth import auth_bp
+from app.routes.items import items_bp
+from app.routes.order import order_bp
+from app.models import db
 from werkzeug.security import generate_password_hash
 
 app = Flask(__name__)
-CORS(app)  # Enable CORS for frontend-backend communication
 
-# Dummy product data
-products = [
-    {"id": 1, "name": "Laptop", "price": 999},
-    {"id": 2, "name": "Coffee Maker", "price": 49},
-    {"id": 3, "name": "Desk Lamp", "price": 19},
-    {"id": 4, "name": "Bookshelf", "price": 59},
-    {"id": 5, "name": "Office Chair", "price": 89}
-]
+# Configure PostgreSQL database (update with your actual password)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:1234@localhost/remarket'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-# In-memory list to store registered users
-users = []
+# Initialize SQLAlchemy with the Flask app
+db.init_app(app)
 
-# API endpoint to return product list
-@app.route('/api/products', methods=['GET'])
-def get_products():
-    return jsonify(products)
+# Register blueprints for different route modules
+app.register_blueprint(auth_bp)
+app.register_blueprint(items_bp)
+app.register_blueprint(order_bp)
 
-# API endpoint to register a new user
-@app.route('/api/register', methods=['POST'])
-def register():
-    data = request.get_json()
-    email = data.get('email')
-    password = data.get('password')
+# Enable CORS for frontend-backend communication
+from flask_cors import CORS
 
-    # Basic validation
-    if not email or not password or not email.endswith('.edu'):
-        return jsonify({'message': 'Invalid email or password'}), 400
+CORS(app, resources={r"/api/*": {"origins": "*"}})
 
-    # Check if user already exists
-    for user in users:
-        if user['email'] == email:
-            return jsonify({'message': 'User already exists'}), 409
 
-    # Hash password and save user
-    hashed_password = generate_password_hash(password)
-    users.append({'email': email, 'password': hashed_password})
+# Create tables and run the app
+from app import create_app
 
-    return jsonify({'message': 'User registered successfully'}), 201
+app = create_app()
 
-# Run the Flask app
 if __name__ == '__main__':
+    with app.app_context():
+        db.create_all()  # Create tables defined in models.py
+
     app.run(debug=True, host='0.0.0.0', port=5050)
+
 
 
 
